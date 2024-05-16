@@ -163,8 +163,6 @@ namespace FilesCheckSum
             lvFoundFiles.TabIndex = 6;
             lvFoundFiles.UseCompatibleStateImageBehavior = false;
             lvFoundFiles.View = View.Details;
-            lvFoundFiles.ItemActivate += lvFoundFiles_ItemActivate;
-            lvFoundFiles.MouseDoubleClick += lvFoundFiles_MouseDoubleClick;
             // 
             // columnHeader1
             // 
@@ -183,28 +181,24 @@ namespace FilesCheckSum
             toolStripMenuItemPlay.Name = "toolStripMenuItemPlay";
             toolStripMenuItemPlay.Size = new Size(127, 22);
             toolStripMenuItemPlay.Text = "&Run";
-            toolStripMenuItemPlay.Click += toolStripMenuItemPlay_Click;
             // 
             // toolStripMenuItemAdd
             // 
             toolStripMenuItemAdd.Name = "toolStripMenuItemAdd";
             toolStripMenuItemAdd.Size = new Size(127, 22);
             toolStripMenuItemAdd.Text = "&Add";
-            toolStripMenuItemAdd.Click += toolStripMenuItemAdd_Click;
             // 
             // toolStripMenuItemRemove
             // 
             toolStripMenuItemRemove.Name = "toolStripMenuItemRemove";
             toolStripMenuItemRemove.Size = new Size(127, 22);
             toolStripMenuItemRemove.Text = "Remove";
-            toolStripMenuItemRemove.Click += toolStripMenuItemRemove_Click;
             // 
             // toolStripMenuItemProperties
             // 
             toolStripMenuItemProperties.Name = "toolStripMenuItemProperties";
             toolStripMenuItemProperties.Size = new Size(127, 22);
             toolStripMenuItemProperties.Text = "P&roperties";
-            toolStripMenuItemProperties.Click += toolStripMenuItemProperties_Click;
             // 
             // button3
             // 
