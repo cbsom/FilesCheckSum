@@ -163,6 +163,7 @@ namespace FilesCheckSum
             lvFoundFiles.TabIndex = 6;
             lvFoundFiles.UseCompatibleStateImageBehavior = false;
             lvFoundFiles.View = View.Details;
+            lvFoundFiles.MouseDoubleClick += lvFoundFiles_MouseDoubleClick_1;
             // 
             // columnHeader1
             // 
@@ -243,11 +244,12 @@ namespace FilesCheckSum
             // pictureBox1
             // 
             pictureBox1.Anchor = AnchorStyles.Top;
+            pictureBox1.BackColor = Color.Transparent;
             pictureBox1.Enabled = false;
             pictureBox1.Image = Properties.Resources.running;
-            pictureBox1.Location = new Point(195, 2);
+            pictureBox1.Location = new Point(351, 65);
             pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(415, 174);
+            pictureBox1.Size = new Size(99, 113);
             pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox1.TabIndex = 9;
             pictureBox1.TabStop = false;

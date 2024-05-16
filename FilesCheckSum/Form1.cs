@@ -42,6 +42,7 @@ namespace FilesCheckSum
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            this.textBox1.Text = Properties.Settings.Default.Path;
             RefreshListView();
         }
 
@@ -59,7 +60,7 @@ namespace FilesCheckSum
 
         private void button3_Click(object sender, EventArgs e)
         {
-            using OpenFileDialog openFileDialog = new OpenFileDialog()
+            using OpenFileDialog openFileDialog = new()
             {
                 Multiselect = true,
                 CheckFileExists = true,
@@ -82,7 +83,7 @@ namespace FilesCheckSum
         }
         private void button4_Click(object sender, EventArgs e)
         {
-            using FolderBrowserDialog openFileDialog = new FolderBrowserDialog();
+            using FolderBrowserDialog openFileDialog = new();
             {
                 var result = openFileDialog.ShowDialog();
                 if (openFileDialog.SelectedPath.Length > 0)
@@ -98,6 +99,9 @@ namespace FilesCheckSum
 
         private void button2_Click(object sender, EventArgs e)
         {
+            Properties.Settings.Default.Path = this.textBox1.Text;
+            Properties.Settings.Default.Save();
+
             lvFoundFiles.Items.Clear();
             pictureBox1.Visible = true;
             pictureBox1.Enabled = true;
@@ -165,72 +169,102 @@ namespace FilesCheckSum
         {
             if (this.lvFoundFiles.SelectedItems.Count > 0)
             {
-                ListViewItem s = this.lvFoundFiles.SelectedItems[0];
-                if (s != null)
+                switch (e.ClickedItem?.Name)
                 {
-                    var path = s.Tag as String;
-                    if (File.Exists(path))
-                    {
-                        switch (e.ClickedItem?.Name)
-                        {
-                            case "toolStripMenuItemPlay":
-                                OpenWithDefaultProgram(path);
-                                break;
-                            case "toolStripMenuItemAdd":
-                                int added = 0;
-                                foreach (ListViewItem f in this.lvFoundFiles.SelectedItems)
-                                {
-                                    path = f.Tag as String;
-                                    if (path != null && this.AddFileToList(path))
-                                    {
-                                        added++;
-                                    }
-                                }
-                                if (added > 0)
-                                {
-                                    SaveListToFile();
-                                    RefreshListView();
-                                    this.label6.Text = $"{added} files added to list";
-                                }
-                                else
-                                {
-                                    this.label6.Text = "No files were added to the list";
-                                }
-                                break;
-                            case "toolStripMenuItemProperties":
-                                ShowFileProperties.Show(path);
-                                break;
-                            case "toolStripMenuItemRemove":
-                                int removed = 0;
-                                foreach (ListViewItem f in this.lvFoundFiles.SelectedItems)
-                                {
-                                    path = f.Tag as String;
-                                    if (path != null && this.RemoveFileFromList(path))
-                                    {
-                                        removed++;
-                                    }
-                                    if (path != null && File.Exists(path))
-                                    {
-                                        File.Delete(path);
-                                        this.lvFoundFiles.Items.Remove(f);
-                                    }
-                                }
-                                if (removed > 0)
-                                {
-                                    SaveListToFile();
-                                    RefreshListView();
-                                    this.label6.Text = $"{removed} files removed from list";
-                                }
-                                else
-                                {
-                                    this.label6.Text = "No files were removed from list";
-                                }
+                    case "toolStripMenuItemPlay":
+                        RunSelectedFile();
+                        break;
+                    case "toolStripMenuItemAdd":
+                        AddSelectedNewItems();
+                        break;
+                    case "toolStripMenuItemProperties":
+                        ShowSelectedItemProperties();
+                        break;
+                    case "toolStripMenuItemRemove":
+                        RemoveSelectedItems();
+                        break;
 
-                                break;
-
-                        }
-                    }
                 }
+            }
+        }
+
+        private void lvFoundFiles_MouseDoubleClick_1(object sender, MouseEventArgs e)
+        {
+            RunSelectedFile();
+        }
+
+        private void ShowSelectedItemProperties()
+        {
+            ListViewItem s = this.lvFoundFiles.SelectedItems[0];
+            var path = s.Tag as String;
+            if (File.Exists(path))
+            {
+                ShowFileProperties.Show(path);
+            }
+        }     
+
+        private void RunSelectedFile()
+        {
+            if (this.lvFoundFiles.SelectedItems.Count > 0)
+            {
+                ListViewItem s = this.lvFoundFiles.SelectedItems[0];
+                var path = s.Tag as String;
+                if (File.Exists(path))
+                {
+                    OpenWithDefaultProgram(path);
+                }
+            }
+        }
+
+        private void RemoveSelectedItems()
+        {
+            string? path;
+            int removed = 0;
+            foreach (ListViewItem f in this.lvFoundFiles.SelectedItems)
+            {
+                path = f.Tag as String;
+                if (path != null && this.RemoveFileFromList(path))
+                {
+                    removed++;
+                }
+                if (path != null && File.Exists(path))
+                {
+                    File.Delete(path);
+                    this.lvFoundFiles.Items.Remove(f);
+                }
+            }
+            if (removed > 0)
+            {
+                SaveListToFile();
+                RefreshListView();
+                this.label6.Text = $"{removed} files removed from list";
+            }
+            else
+            {
+                this.label6.Text = "No files were removed from list";
+            }
+        }
+
+        private void AddSelectedNewItems()
+        {
+            int added = 0;
+            foreach (ListViewItem f in this.lvFoundFiles.SelectedItems)
+            {
+                string? path = f.Tag as String;
+                if (path != null && this.AddFileToList(path))
+                {
+                    added++;
+                }
+            }
+            if (added > 0)
+            {
+                SaveListToFile();
+                RefreshListView();
+                this.label6.Text = $"{added} files added to list";
+            }
+            else
+            {
+                this.label6.Text = "No files were added to the list";
             }
         }
 
@@ -337,7 +371,7 @@ namespace FilesCheckSum
                 hash = GetHash(path);
             }
             return (name, hash);
-        }  
+        }
 
         private static void OpenWithDefaultProgram(string path)
         {
