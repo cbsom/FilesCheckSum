@@ -31,10 +31,10 @@ namespace FilesCheckSum
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             textBox1 = new TextBox();
             button1 = new Button();
             button2 = new Button();
-            label1 = new Label();
             lvAllowedFiles = new DoubleBufferedListView();
             ColumnHash = new ColumnHeader();
             ColumnOrigin = new ColumnHeader();
@@ -56,6 +56,8 @@ namespace FilesCheckSum
             label6 = new Label();
             button5 = new Button();
             label7 = new Label();
+            button6 = new Button();
+            toolTip1 = new ToolTip(components);
             contextMenuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
@@ -63,46 +65,49 @@ namespace FilesCheckSum
             // textBox1
             // 
             textBox1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            textBox1.BackColor = Color.GhostWhite;
             textBox1.Font = new Font("Segoe UI", 15F);
-            textBox1.Location = new Point(18, 31);
+            textBox1.ForeColor = Color.FromArgb(128, 128, 255);
+            textBox1.Location = new Point(21, 12);
             textBox1.Name = "textBox1";
             textBox1.ReadOnly = true;
-            textBox1.Size = new Size(703, 34);
+            textBox1.Size = new Size(716, 34);
             textBox1.TabIndex = 0;
             // 
             // button1
             // 
             button1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            button1.BackgroundImage = Properties.Resources.Folder;
-            button1.BackgroundImageLayout = ImageLayout.Stretch;
-            button1.Location = new Point(727, 24);
+            button1.BackgroundImage = Properties.Resources.folder_scale_200;
+            button1.BackgroundImageLayout = ImageLayout.Center;
+            button1.Cursor = Cursors.Hand;
+            button1.FlatAppearance.BorderSize = 0;
+            button1.FlatAppearance.MouseDownBackColor = Color.Transparent;
+            button1.FlatAppearance.MouseOverBackColor = Color.Transparent;
+            button1.FlatStyle = FlatStyle.Flat;
+            button1.Location = new Point(743, 7);
             button1.Name = "button1";
-            button1.Size = new Size(56, 49);
+            button1.Size = new Size(45, 40);
             button1.TabIndex = 1;
             button1.UseVisualStyleBackColor = true;
             button1.Click += button1_Click;
             // 
             // button2
             // 
-            button2.Anchor = AnchorStyles.Top;
+            button2.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             button2.BackgroundImage = Properties.Resources.right_arrow;
-            button2.BackgroundImageLayout = ImageLayout.Stretch;
-            button2.Location = new Point(363, 94);
+            button2.BackgroundImageLayout = ImageLayout.Zoom;
+            button2.Cursor = Cursors.Hand;
+            button2.FlatAppearance.BorderSize = 0;
+            button2.FlatAppearance.MouseDownBackColor = Color.Transparent;
+            button2.FlatAppearance.MouseOverBackColor = Color.Transparent;
+            button2.FlatStyle = FlatStyle.Flat;
+            button2.Location = new Point(647, 29);
             button2.Name = "button2";
-            button2.Size = new Size(75, 63);
+            button2.Size = new Size(114, 189);
             button2.TabIndex = 2;
+            toolTip1.SetToolTip(button2, "Start Search");
             button2.UseVisualStyleBackColor = true;
             button2.Click += button2_Click;
-            // 
-            // label1
-            // 
-            label1.Anchor = AnchorStyles.Top;
-            label1.AutoSize = true;
-            label1.Location = new Point(385, 76);
-            label1.Name = "label1";
-            label1.Size = new Size(31, 15);
-            label1.TabIndex = 3;
-            label1.Text = "Start";
             // 
             // lvAllowedFiles
             // 
@@ -132,6 +137,7 @@ namespace FilesCheckSum
             // label2
             // 
             label2.AutoSize = true;
+            label2.ForeColor = Color.Navy;
             label2.Location = new Point(19, 181);
             label2.Name = "label2";
             label2.Size = new Size(79, 15);
@@ -141,6 +147,7 @@ namespace FilesCheckSum
             // label3
             // 
             label3.AutoSize = true;
+            label3.ForeColor = Color.Navy;
             label3.Location = new Point(411, 181);
             label3.Name = "label3";
             label3.Size = new Size(82, 15);
@@ -206,7 +213,13 @@ namespace FilesCheckSum
             // button3
             // 
             button3.BackgroundImage = Properties.Resources.add;
-            button3.BackgroundImageLayout = ImageLayout.Stretch;
+            button3.BackgroundImageLayout = ImageLayout.Zoom;
+            button3.Cursor = Cursors.Hand;
+            button3.FlatAppearance.BorderSize = 0;
+            button3.FlatAppearance.CheckedBackColor = Color.Transparent;
+            button3.FlatAppearance.MouseDownBackColor = Color.Transparent;
+            button3.FlatAppearance.MouseOverBackColor = Color.Transparent;
+            button3.FlatStyle = FlatStyle.Flat;
             button3.Location = new Point(125, 106);
             button3.Name = "button3";
             button3.Size = new Size(30, 28);
@@ -218,6 +231,7 @@ namespace FilesCheckSum
             // 
             label4.AutoSize = true;
             label4.Font = new Font("Segoe UI", 7F);
+            label4.ForeColor = Color.Navy;
             label4.Location = new Point(21, 115);
             label4.Name = "label4";
             label4.Size = new Size(109, 12);
@@ -228,6 +242,7 @@ namespace FilesCheckSum
             // 
             label5.AutoSize = true;
             label5.Font = new Font("Segoe UI", 7F);
+            label5.ForeColor = Color.Navy;
             label5.Location = new Point(21, 86);
             label5.Name = "label5";
             label5.Size = new Size(109, 12);
@@ -237,7 +252,13 @@ namespace FilesCheckSum
             // button4
             // 
             button4.BackgroundImage = Properties.Resources.add;
-            button4.BackgroundImageLayout = ImageLayout.Stretch;
+            button4.BackgroundImageLayout = ImageLayout.Zoom;
+            button4.Cursor = Cursors.Hand;
+            button4.FlatAppearance.BorderSize = 0;
+            button4.FlatAppearance.CheckedBackColor = Color.Transparent;
+            button4.FlatAppearance.MouseDownBackColor = Color.Transparent;
+            button4.FlatAppearance.MouseOverBackColor = Color.Transparent;
+            button4.FlatStyle = FlatStyle.Flat;
             button4.Location = new Point(125, 77);
             button4.Name = "button4";
             button4.Size = new Size(30, 28);
@@ -277,7 +298,13 @@ namespace FilesCheckSum
             // button5
             // 
             button5.BackgroundImage = Properties.Resources.add;
-            button5.BackgroundImageLayout = ImageLayout.Stretch;
+            button5.BackgroundImageLayout = ImageLayout.Zoom;
+            button5.Cursor = Cursors.Hand;
+            button5.FlatAppearance.BorderSize = 0;
+            button5.FlatAppearance.CheckedBackColor = Color.Transparent;
+            button5.FlatAppearance.MouseDownBackColor = Color.Transparent;
+            button5.FlatAppearance.MouseOverBackColor = Color.Transparent;
+            button5.FlatStyle = FlatStyle.Flat;
             button5.Location = new Point(125, 135);
             button5.Name = "button5";
             button5.Size = new Size(30, 28);
@@ -289,11 +316,31 @@ namespace FilesCheckSum
             // 
             label7.AutoSize = true;
             label7.Font = new Font("Segoe UI", 7F);
+            label7.ForeColor = Color.Navy;
             label7.Location = new Point(21, 144);
             label7.Name = "label7";
             label7.Size = new Size(106, 12);
             label7.TabIndex = 11;
             label7.Text = "Add from CSV ---------";
+            // 
+            // button6
+            // 
+            button6.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            button6.BackgroundImage = Properties.Resources.stop_down;
+            button6.BackgroundImageLayout = ImageLayout.Zoom;
+            button6.Cursor = Cursors.Hand;
+            button6.FlatAppearance.BorderSize = 0;
+            button6.FlatAppearance.MouseDownBackColor = Color.Transparent;
+            button6.FlatAppearance.MouseOverBackColor = Color.Transparent;
+            button6.FlatStyle = FlatStyle.Flat;
+            button6.Location = new Point(644, 78);
+            button6.Name = "button6";
+            button6.Size = new Size(93, 113);
+            button6.TabIndex = 13;
+            toolTip1.SetToolTip(button6, "Stop Searching");
+            button6.UseVisualStyleBackColor = true;
+            button6.Visible = false;
+            button6.Click += button6_Click;
             // 
             // Form1
             // 
@@ -313,10 +360,12 @@ namespace FilesCheckSum
             Controls.Add(label4);
             Controls.Add(label2);
             Controls.Add(lvAllowedFiles);
-            Controls.Add(label1);
-            Controls.Add(button2);
             Controls.Add(button1);
             Controls.Add(textBox1);
+            Controls.Add(button2);
+            Controls.Add(button6);
+            ForeColor = Color.Navy;
+            Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "Form1";
             FormClosing += Form1_FormClosing;
             Load += Form1_Load;
@@ -331,7 +380,6 @@ namespace FilesCheckSum
         private TextBox textBox1;
         private Button button1;
         private Button button2;
-        private Label label1;
         private FilesCheckSum.DoubleBufferedListView lvAllowedFiles;
         private Label label2;
         private Label label3;
@@ -353,5 +401,7 @@ namespace FilesCheckSum
         private ToolStripMenuItem toolStripMenuItemRemove;
         private Button button5;
         private Label label7;
+        private Button button6;
+        private ToolTip toolTip1;
     }
 }

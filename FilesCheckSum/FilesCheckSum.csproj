@@ -6,7 +6,20 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationIcon>icon-blue-128.ico</ApplicationIcon>
+    <PackageIcon>icon-blue-128.png</PackageIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="icon-blue-128.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\..\Users\cbsom\AppData\Local\Microsoft\Edge\User Data\Default\Extensions\jmekfmbnaedfebfnmakmokmlfpblbfdm\24.108.2.47_1\img\icon\icon-blue-128.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">

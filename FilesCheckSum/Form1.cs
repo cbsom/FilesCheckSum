@@ -8,10 +8,11 @@ namespace FilesCheckSum
         private readonly List<(string? hash, string? origin)> _fileList = [];
         private readonly string _filePath = Path.Join(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
             "FileList.csv");
+        private bool _stopSearch = false;
 
         public Form1()
         {
-            InitializeComponent();           
+            InitializeComponent();
             if (!File.Exists(_filePath))
             {
                 File.WriteAllText(_filePath, "");
@@ -100,15 +101,15 @@ namespace FilesCheckSum
         {
             Properties.Settings.Default.Path = this.textBox1.Text;
             Properties.Settings.Default.Save();
-            
+
             lvFoundFiles.Items.Clear();
             lvFoundFiles.SuspendLayout();
             pictureBox1.Visible = true;
-            label1.Visible = false;
+            this.button6.Visible = true;
             button2.Visible = false;
             pictureBox1.Enabled = true;
             pictureBox1.Image = Properties.Resources.running;
-            this.label6.Text = "";            
+            this.label6.Text = "";
             this.backgroundWorker1.RunWorkerAsync();
         }
 
@@ -148,6 +149,11 @@ namespace FilesCheckSum
             }
         }
 
+        private void button6_Click(object sender, EventArgs e)
+        {
+            this._stopSearch = true;
+        }
+
         private void lvFoundFiles_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             if (this.lvFoundFiles.SelectedItems.Count > 0)
@@ -170,6 +176,10 @@ namespace FilesCheckSum
             {
                 foreach (var file in Directory.GetFiles(textBox1.Text, "*.*", SearchOption.AllDirectories))
                 {
+                    if (_stopSearch)
+                    {
+                        break;
+                    }
                     var (hash, origin) = GetFileWithHash(file);
                     var lvi = new ListViewItem([file.Replace(textBox1.Text, "..") ?? "UNKNOWN"]) { Tag = file };
                     if (!_fileList.Any(flf => flf.hash?.ToUpper() == hash?.ToUpper()))
@@ -191,9 +201,10 @@ namespace FilesCheckSum
 
         private void backgroundWorker1_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
         {
+            _stopSearch = false;
             pictureBox1.Enabled = false;
             pictureBox1.Visible = false;
-            label1.Visible = true;
+            this.button6.Visible = false;
             button2.Visible = true;
             lvFoundFiles.ResumeLayout();
             int count = 0;
@@ -451,6 +462,6 @@ namespace FilesCheckSum
             p.StartInfo.FileName = "explorer";
             p.StartInfo.Arguments = "\"" + path + "\"";
             p.Start();
-        }
+        }        
     }
 }
