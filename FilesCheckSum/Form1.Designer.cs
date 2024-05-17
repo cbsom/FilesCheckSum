@@ -35,12 +35,12 @@ namespace FilesCheckSum
             button1 = new Button();
             button2 = new Button();
             label1 = new Label();
-            lvAllowedFiles = new ListView();
-            ColumnName = new ColumnHeader();
+            lvAllowedFiles = new DoubleBufferedListView();
             ColumnHash = new ColumnHeader();
+            ColumnOrigin = new ColumnHeader();
             label2 = new Label();
             label3 = new Label();
-            lvFoundFiles = new ListView();
+            lvFoundFiles = new DoubleBufferedListView();
             columnHeader1 = new ColumnHeader();
             contextMenuStrip1 = new ContextMenuStrip(components);
             toolStripMenuItemPlay = new ToolStripMenuItem();
@@ -54,6 +54,8 @@ namespace FilesCheckSum
             pictureBox1 = new PictureBox();
             backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             label6 = new Label();
+            button5 = new Button();
+            label7 = new Label();
             contextMenuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
@@ -107,7 +109,7 @@ namespace FilesCheckSum
             lvAllowedFiles.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
             lvAllowedFiles.AutoArrange = false;
             lvAllowedFiles.BackColor = Color.Honeydew;
-            lvAllowedFiles.Columns.AddRange(new ColumnHeader[] { ColumnName, ColumnHash });
+            lvAllowedFiles.Columns.AddRange(new ColumnHeader[] { ColumnHash, ColumnOrigin });
             lvAllowedFiles.ForeColor = Color.DarkOliveGreen;
             lvAllowedFiles.GridLines = true;
             lvAllowedFiles.Location = new Point(18, 201);
@@ -117,33 +119,33 @@ namespace FilesCheckSum
             lvAllowedFiles.UseCompatibleStateImageBehavior = false;
             lvAllowedFiles.View = View.Details;
             // 
-            // ColumnName
-            // 
-            ColumnName.Text = "Name";
-            ColumnName.Width = 200;
-            // 
             // ColumnHash
             // 
             ColumnHash.Text = "Hash";
-            ColumnHash.Width = 180;
+            ColumnHash.Width = 70;
+            // 
+            // ColumnOrigin
+            // 
+            ColumnOrigin.Text = "Origin";
+            ColumnOrigin.Width = 500;
             // 
             // label2
             // 
             label2.AutoSize = true;
             label2.Location = new Point(19, 181);
             label2.Name = "label2";
-            label2.Size = new Size(97, 15);
+            label2.Size = new Size(79, 15);
             label2.TabIndex = 5;
-            label2.Text = "Allowed Files List";
+            label2.Text = "Allowed Files:";
             // 
             // label3
             // 
             label3.AutoSize = true;
             label3.Location = new Point(411, 181);
             label3.Name = "label3";
-            label3.Size = new Size(79, 15);
+            label3.Size = new Size(82, 15);
             label3.TabIndex = 7;
-            label3.Text = "Checked Files";
+            label3.Text = "Checked Files:";
             // 
             // lvFoundFiles
             // 
@@ -205,7 +207,7 @@ namespace FilesCheckSum
             // 
             button3.BackgroundImage = Properties.Resources.add;
             button3.BackgroundImageLayout = ImageLayout.Stretch;
-            button3.Location = new Point(366, 173);
+            button3.Location = new Point(125, 106);
             button3.Name = "button3";
             button3.Size = new Size(30, 28);
             button3.TabIndex = 8;
@@ -215,26 +217,28 @@ namespace FilesCheckSum
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(315, 181);
+            label4.Font = new Font("Segoe UI", 7F);
+            label4.Location = new Point(21, 115);
             label4.Name = "label4";
-            label4.Size = new Size(53, 15);
+            label4.Size = new Size(109, 12);
             label4.TabIndex = 5;
-            label4.Text = "Add files";
+            label4.Text = "Add files ----------------";
             // 
             // label5
             // 
             label5.AutoSize = true;
-            label5.Location = new Point(146, 180);
+            label5.Font = new Font("Segoe UI", 7F);
+            label5.Location = new Point(21, 86);
             label5.Name = "label5";
-            label5.Size = new Size(121, 15);
+            label5.Size = new Size(109, 12);
             label5.TabIndex = 5;
-            label5.Text = "Add folder (recursive)";
+            label5.Text = "Add folder (recursive) --";
             // 
             // button4
             // 
             button4.BackgroundImage = Properties.Resources.add;
             button4.BackgroundImageLayout = ImageLayout.Stretch;
-            button4.Location = new Point(263, 173);
+            button4.Location = new Point(125, 77);
             button4.Name = "button4";
             button4.Size = new Size(30, 28);
             button4.TabIndex = 8;
@@ -243,13 +247,12 @@ namespace FilesCheckSum
             // 
             // pictureBox1
             // 
-            pictureBox1.Anchor = AnchorStyles.Top;
             pictureBox1.BackColor = Color.Transparent;
             pictureBox1.Enabled = false;
             pictureBox1.Image = Properties.Resources.running;
-            pictureBox1.Location = new Point(351, 65);
+            pictureBox1.Location = new Point(494, 74);
             pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(99, 113);
+            pictureBox1.Size = new Size(144, 125);
             pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox1.TabIndex = 9;
             pictureBox1.TabStop = false;
@@ -271,12 +274,35 @@ namespace FilesCheckSum
             label6.Size = new Size(0, 15);
             label6.TabIndex = 10;
             // 
+            // button5
+            // 
+            button5.BackgroundImage = Properties.Resources.add;
+            button5.BackgroundImageLayout = ImageLayout.Stretch;
+            button5.Location = new Point(125, 135);
+            button5.Name = "button5";
+            button5.Size = new Size(30, 28);
+            button5.TabIndex = 12;
+            button5.UseVisualStyleBackColor = true;
+            button5.Click += button5_Click;
+            // 
+            // label7
+            // 
+            label7.AutoSize = true;
+            label7.Font = new Font("Segoe UI", 7F);
+            label7.Location = new Point(21, 144);
+            label7.Name = "label7";
+            label7.Size = new Size(106, 12);
+            label7.TabIndex = 11;
+            label7.Text = "Add from CSV ---------";
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
             ClientSize = new Size(800, 772);
+            Controls.Add(button5);
+            Controls.Add(label7);
             Controls.Add(label6);
             Controls.Add(pictureBox1);
             Controls.Add(button4);
@@ -292,6 +318,7 @@ namespace FilesCheckSum
             Controls.Add(button1);
             Controls.Add(textBox1);
             Name = "Form1";
+            FormClosing += Form1_FormClosing;
             Load += Form1_Load;
             contextMenuStrip1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
@@ -305,11 +332,11 @@ namespace FilesCheckSum
         private Button button1;
         private Button button2;
         private Label label1;
-        private ListView lvAllowedFiles;
+        private FilesCheckSum.DoubleBufferedListView lvAllowedFiles;
         private Label label2;
         private Label label3;
-        private ListView lvFoundFiles;
-        private ColumnHeader ColumnName;
+        private FilesCheckSum.DoubleBufferedListView lvFoundFiles;
+        private ColumnHeader ColumnOrigin;
         private ColumnHeader ColumnHash;
         private Button button3;
         private Label label4;
@@ -324,5 +351,7 @@ namespace FilesCheckSum
         private ToolStripMenuItem toolStripMenuItemAdd;
         private ToolStripMenuItem toolStripMenuItemProperties;
         private ToolStripMenuItem toolStripMenuItemRemove;
+        private Button button5;
+        private Label label7;
     }
 }

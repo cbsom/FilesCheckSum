@@ -34,5 +34,17 @@ namespace FilesCheckSum.Properties {
                 this["Path"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string AllowedFilesCsv {
+            get {
+                return ((string)(this["AllowedFilesCsv"]));
+            }
+            set {
+                this["AllowedFilesCsv"] = value;
+            }
+        }
     }
 }
