@@ -1,14 +1,16 @@
 using System.Diagnostics;
+using System.IO;
 using System.Reflection;
+using System.Security.Cryptography;
 
 namespace FilesCheckSum
 {
     public partial class Form1 : Form
     {
         private readonly List<FileInfo> _fileList = [];
-        private readonly string _filePath = Path.Join(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-            "FileList.csv");
         private bool _stopSearch = false;
+        private static readonly string _filePath = Path.Join(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+            "FileList.csv");
 
         public Form1()
         {
@@ -82,6 +84,8 @@ namespace FilesCheckSum
                 if (openFileDialog.ShowDialog() == DialogResult.OK && openFileDialog.FileNames.Length > 0)
                 {
                     var files = openFileDialog.FileNames;
+                    lvAllowedFiles.SuspendLayout();
+                    pictureBox2.Enabled = true;
                     pictureBox2.Visible = true;
                     this.button7.Visible = true;
                     backgroundWorker2.RunWorkerAsync(files);
@@ -90,11 +94,17 @@ namespace FilesCheckSum
         }
         private void button4_Click(object sender, EventArgs e)
         {
+            Properties.Settings.Default.Filter = this.textBox2.Text;
+            Properties.Settings.Default.Save();
+
             using FolderBrowserDialog openFileDialog = new();
             {
                 if (openFileDialog.ShowDialog() == DialogResult.OK && openFileDialog.SelectedPath.Length > 0)
                 {
+                    lvAllowedFiles.SuspendLayout();
+                    pictureBox2.Enabled = true;
                     pictureBox2.Visible = true;
+
                     this.button7.Visible = true;
                     var files = Directory.GetFiles(openFileDialog.SelectedPath,
                         Properties.Settings.Default.Filter,
@@ -219,17 +229,15 @@ namespace FilesCheckSum
                         break;
                     }
                     var sysFile = new System.IO.FileInfo(file);
-                    var fi = new { Origin = file, Size = sysFile.Length, LastModified = sysFile.LastWriteTime };
-                    var lvi = new ListViewItem([file.Replace(textBox1.Text, "..") ?? "UNKNOWN"]);
-                    if (_fileList.Any(f => f.Size == fi.Size &&
-                                        f.LastModified == fi.LastModified &&
-                                        Path.GetFileName(f.Origin).Equals(sysFile.Name, StringComparison.InvariantCultureIgnoreCase)))
+                    var fi = new FileInfo { Hash = string.Empty, Origin = file, Size = sysFile.Length, LastModified = sysFile.LastWriteTime };
+                    var lvi = new ListViewItem([file.Replace(textBox1.Text, "..") ?? "UNKNOWN"]) { Tag = fi };
+                    if (_fileList.Any(f => f.HasSameInfo(fi)))
                     {
                         lvi.BackColor = Color.LightGreen;
                     }
                     else
                     {
-                        var hash = GetHash(file);
+                        var hash = CalculateMD5(file);
                         if (_fileList.Any(f => f.Hash.Equals(hash, StringComparison.InvariantCultureIgnoreCase)))
                         {
                             lvi.BackColor = Color.LightGreen;
@@ -281,10 +289,20 @@ namespace FilesCheckSum
                     {
                         break;
                     }
-                    this.Invoke(new Action(() =>
+                    var f = GetFileWithHash(file);
+                    if (f != null && f.Origin != null && f.Hash != null)
                     {
-                        AddFileToAllowedList(file);
-                    }));
+                        if (!_fileList.Any(fli => fli.Hash == f.Hash))
+                        {
+                            _fileList.Add(f);
+                            ListViewItem lvi = new([f.Hash, f.Origin, f.Size.ToString(), f.LastModified.ToString()]) { Tag = f };
+                            this.Invoke(new Action(() =>
+                            {
+                                lvAllowedFiles.Items.Add(lvi);
+                                lvi.EnsureVisible();
+                            }));
+                        }
+                    }
                 }
             }
         }
@@ -294,6 +312,7 @@ namespace FilesCheckSum
             this._stopSearch = false;
             this.pictureBox2.Visible = false;
             this.button7.Visible = false;
+            lvAllowedFiles.ResumeLayout();
             SaveAllowedList();
         }
 
@@ -361,10 +380,10 @@ namespace FilesCheckSum
         private void ShowSelectedItemProperties()
         {
             ListViewItem s = this.lvFoundFiles.SelectedItems[0];
-            var path = s.Tag as String;
-            if (File.Exists(path))
+            var fi = s.Tag as FileInfo;
+            if (File.Exists(fi?.Origin))
             {
-                ShowFileProperties.Show(path);
+                ShowFileProperties.Show(fi.Origin);
             }
         }
 
@@ -373,28 +392,28 @@ namespace FilesCheckSum
             if (this.lvFoundFiles.SelectedItems.Count > 0)
             {
                 ListViewItem s = this.lvFoundFiles.SelectedItems[0];
-                var path = s.Tag as String;
-                if (File.Exists(path))
+                var fi = s.Tag as FileInfo;
+                if (File.Exists(fi?.Origin))
                 {
-                    OpenWithDefaultProgram(path);
+                    OpenWithDefaultProgram(fi.Origin);
                 }
             }
         }
 
         private void RemoveSelectedItems()
         {
-            string? path;
+            FileInfo? fi;
             int removed = 0;
             foreach (ListViewItem f in this.lvFoundFiles.SelectedItems)
             {
-                path = f.Tag as String;
-                if (path != null && this.RemoveFileFromAllowedList(path))
+                fi = f.Tag as FileInfo;
+                if (fi != null && this.RemoveFileFromAllowedList(fi.Origin))
                 {
                     removed++;
                 }
-                if (path != null && File.Exists(path))
+                if (fi != null && File.Exists(fi.Origin))
                 {
-                    File.Delete(path);
+                    File.Delete(fi.Origin);
                     this.lvFoundFiles.Items.Remove(f);
                 }
             }
@@ -414,8 +433,7 @@ namespace FilesCheckSum
             int added = 0;
             foreach (ListViewItem f in this.lvFoundFiles.SelectedItems)
             {
-                string? path = f.Tag as String;
-                if (path != null && this.AddFileToAllowedList(path))
+                if (f.Tag is FileInfo fi && this.AddFileToAllowedList(fi.Origin))
                 {
                     added++;
                 }
@@ -436,7 +454,7 @@ namespace FilesCheckSum
             lvAllowedFiles.Items.Clear();
             foreach (var fi in _fileList)
             {
-                ListViewItem lvi = new([fi.Hash, fi.Origin, fi.Size.ToString(), fi.LastModified.ToString()]);
+                ListViewItem lvi = new([fi.Hash, fi.Origin, fi.Size.ToString(), fi.LastModified.ToString()]) { Tag = fi };
                 lvAllowedFiles.Items.Add(lvi);
                 lvi.EnsureVisible();
             }
@@ -474,8 +492,9 @@ namespace FilesCheckSum
                     found.LastModified = f.LastModified;
                     foreach (ListViewItem lvi in this.lvAllowedFiles.Items)
                     {
-                        if (lvi.Text == f.Hash)
+                        if (lvi.Tag is FileInfo fi && fi.Hash == f.Hash)
                         {
+                            lvi.Tag = f;
                             lvi.SubItems[1].Text = f.Origin;
                             lvi.SubItems[2].Text = f.Size.ToString();
                             lvi.SubItems[3].Text = f.LastModified.ToString();
@@ -487,7 +506,7 @@ namespace FilesCheckSum
                 else
                 {
                     _fileList.Add(f);
-                    ListViewItem lvi = new([f.Hash, f.Origin, f.Size.ToString(), f.LastModified.ToString()]);
+                    ListViewItem lvi = new([f.Hash, f.Origin, f.Size.ToString(), f.LastModified.ToString()]) { Tag = f };
                     lvAllowedFiles.Items.Add(lvi);
                     lvi.EnsureVisible();
                     return true;
@@ -501,7 +520,7 @@ namespace FilesCheckSum
             var f = GetFileWithHash(path);
             if (f != null && f.Hash != null)
             {
-                var found = _fileList.Find(fli => fli.Hash == f.Hash);
+                var found = _fileList.Find(fli => fli.Hash == f.Hash || f.HasSameInfo(fli));
                 if (found != default)
                 {
                     var index = _fileList.IndexOf(found);
@@ -509,7 +528,7 @@ namespace FilesCheckSum
                     ListViewItem? lviFound = null;
                     foreach (ListViewItem lvi in this.lvAllowedFiles.Items)
                     {
-                        if (lvi.Text == f.Hash)
+                        if (lvi.Tag is FileInfo fi && fi.Hash == f.Hash)
                         {
                             lviFound = lvi;
                             break;
@@ -529,30 +548,26 @@ namespace FilesCheckSum
         {
             return s.Trim().Trim('"');
         }
-        private static string GetHash(string file)
-        {
-            var md5Checksum = "";
-            var startInfo = new ProcessStartInfo
-            {
-                WindowStyle = ProcessWindowStyle.Hidden,
-                FileName = "cmd.exe",
-                Arguments = $"/C  CertUtil -hashfile \"{file}\" MD5 | find /i /v \"md5\" | find /i /v \"certutil\"",
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-            };
-            using var process = new Process { StartInfo = startInfo };
-            process.OutputDataReceived += new DataReceivedEventHandler((sender, e) =>
-            {
-                if (!String.IsNullOrEmpty(e.Data))
-                {
-                    md5Checksum = e.Data;
-                }
-            });
 
-            process.Start();
-            process.BeginOutputReadLine();
-            process.WaitForExit();
-            return md5Checksum;
+        private static string? CalculateMD5(string filename)
+        {
+            using MD5 md5 = MD5.Create();
+            using FileStream fileStream = File.OpenRead(filename);
+            try
+            {
+                fileStream.Position = 0;
+                byte[] hashValue = md5.ComputeHash(fileStream);
+                return BitConverter.ToString(md5.ComputeHash(hashValue)).Replace("-", "").ToLower();
+            }
+            catch (IOException e)
+            {
+                Console.WriteLine($"I/O Exception: {e.Message}");
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                Console.WriteLine($"Access Exception: {e.Message}");
+            }
+            return null;
         }
 
         private static FileInfo? GetFileWithHash(string path)
@@ -562,7 +577,7 @@ namespace FilesCheckSum
             {
                 return new FileInfo
                 {
-                    Hash = GetHash(path),
+                    Hash = CalculateMD5(path) ?? "",
                     Origin = path,
                     Size = file.Length,
                     LastModified = file.LastWriteTime
@@ -585,5 +600,13 @@ namespace FilesCheckSum
         public required string Origin { get; set; }
         public long Size { get; set; }
         public DateTime LastModified { get; set; }
+
+        public bool HasSameInfo(FileInfo fi2)
+        {
+            return
+                this.Size == fi2.Size &&
+                this.LastModified == fi2.LastModified &&
+                Path.GetFileName(this.Origin).Equals(Path.GetFileName(fi2.Origin), StringComparison.InvariantCultureIgnoreCase);
+        }
     }
 }

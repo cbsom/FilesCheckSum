@@ -195,31 +195,31 @@ namespace FilesCheckSum
             // 
             contextMenuStrip1.Items.AddRange(new ToolStripItem[] { toolStripMenuItemPlay, toolStripMenuItemAdd, toolStripMenuItemRemove, toolStripMenuItemProperties });
             contextMenuStrip1.Name = "contextMenuStrip1";
-            contextMenuStrip1.Size = new Size(128, 92);
+            contextMenuStrip1.Size = new Size(181, 114);
             contextMenuStrip1.ItemClicked += contextMenuStrip1_ItemClicked;
             // 
             // toolStripMenuItemPlay
             // 
             toolStripMenuItemPlay.Name = "toolStripMenuItemPlay";
-            toolStripMenuItemPlay.Size = new Size(127, 22);
+            toolStripMenuItemPlay.Size = new Size(180, 22);
             toolStripMenuItemPlay.Text = "&Run";
             // 
             // toolStripMenuItemAdd
             // 
             toolStripMenuItemAdd.Name = "toolStripMenuItemAdd";
-            toolStripMenuItemAdd.Size = new Size(127, 22);
+            toolStripMenuItemAdd.Size = new Size(180, 22);
             toolStripMenuItemAdd.Text = "&Add";
             // 
             // toolStripMenuItemRemove
             // 
             toolStripMenuItemRemove.Name = "toolStripMenuItemRemove";
-            toolStripMenuItemRemove.Size = new Size(127, 22);
+            toolStripMenuItemRemove.Size = new Size(180, 22);
             toolStripMenuItemRemove.Text = "Remove";
             // 
             // toolStripMenuItemProperties
             // 
             toolStripMenuItemProperties.Name = "toolStripMenuItemProperties";
-            toolStripMenuItemProperties.Size = new Size(127, 22);
+            toolStripMenuItemProperties.Size = new Size(180, 22);
             toolStripMenuItemProperties.Text = "P&roperties";
             // 
             // label2
