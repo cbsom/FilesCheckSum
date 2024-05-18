@@ -5,7 +5,7 @@ namespace FilesCheckSum
 {
     public partial class Form1 : Form
     {
-        private readonly List<(string? hash, string? origin)> _fileList = [];
+        private readonly List<FileInfo> _fileList = [];
         private readonly string _filePath = Path.Join(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
             "FileList.csv");
         private bool _stopSearch = false;
@@ -17,20 +17,28 @@ namespace FilesCheckSum
             {
                 File.WriteAllText(_filePath, "");
             }
-            string[] lines = Properties.Settings.Default.AllowedFilesCsv.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            string[] lines = Properties.Settings.Default.AllowedFilesCsv.Split(Environment.NewLine,
+                StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
             if (lines.Length > 0)
             {
                 string[] parts = lines[0].Split(',');
-                if (Clean(parts[0]) == "hash" && Clean(parts[1]) == "origin")
+                if (Clean(parts[0]) == "hash")
                 {
                     lines = lines.Skip(1).ToArray();
                 }
                 foreach (string line in lines)
                 {
                     parts = line.Split(',');
-                    if (parts.Length == 2)
+                    if (parts.Length == 4)
                     {
-                        _fileList.Add((Clean(parts[0]), Clean(parts[1])));
+                        var fi = new FileInfo
+                        {
+                            Hash = Clean(parts[0]),
+                            Origin = Clean(parts[1]),
+                            Size = long.Parse(Clean(parts[2])),
+                            LastModified = DateTime.Parse(Clean(parts[3])),
+                        };
+                        _fileList.Add(fi);
                     }
                 }
             }
@@ -39,6 +47,7 @@ namespace FilesCheckSum
         private void Form1_Load(object sender, EventArgs e)
         {
             this.textBox1.Text = Properties.Settings.Default.Path;
+            this.textBox2.Text = Properties.Settings.Default.Filter;
             LoadAllowedListView();
         }
 
@@ -70,14 +79,12 @@ namespace FilesCheckSum
                 Filter = "\"mp3 files (*.mp3)|*.mp3|All files (*.*)|*.*\""
             };
             {
-                var result = openFileDialog.ShowDialog();
-                if (openFileDialog.FileNames.Length > 0)
+                if (openFileDialog.ShowDialog() == DialogResult.OK && openFileDialog.FileNames.Length > 0)
                 {
-                    foreach (var file in openFileDialog.FileNames)
-                    {
-                        AddFileToAllowedList(file);
-                    }
-                    SaveAllowedList();
+                    var files = openFileDialog.FileNames;
+                    pictureBox2.Visible = true;
+                    this.button7.Visible = true;
+                    backgroundWorker2.RunWorkerAsync(files);
                 }
             }
         }
@@ -85,14 +92,14 @@ namespace FilesCheckSum
         {
             using FolderBrowserDialog openFileDialog = new();
             {
-                var result = openFileDialog.ShowDialog();
-                if (openFileDialog.SelectedPath.Length > 0)
+                if (openFileDialog.ShowDialog() == DialogResult.OK && openFileDialog.SelectedPath.Length > 0)
                 {
-                    foreach (var file in Directory.GetFiles(openFileDialog.SelectedPath, "*.*", SearchOption.AllDirectories))
-                    {
-                        AddFileToAllowedList(file);
-                    }
-                    SaveAllowedList();
+                    pictureBox2.Visible = true;
+                    this.button7.Visible = true;
+                    var files = Directory.GetFiles(openFileDialog.SelectedPath,
+                        Properties.Settings.Default.Filter,
+                        SearchOption.AllDirectories);
+                    backgroundWorker2.RunWorkerAsync(files);
                 }
             }
         }
@@ -100,17 +107,36 @@ namespace FilesCheckSum
         private void button2_Click(object sender, EventArgs e)
         {
             Properties.Settings.Default.Path = this.textBox1.Text;
+            Properties.Settings.Default.Filter = this.textBox2.Text;
             Properties.Settings.Default.Save();
 
-            lvFoundFiles.Items.Clear();
-            lvFoundFiles.SuspendLayout();
-            pictureBox1.Visible = true;
-            this.button6.Visible = true;
-            button2.Visible = false;
-            pictureBox1.Enabled = true;
-            pictureBox1.Image = Properties.Resources.running;
-            this.label6.Text = "";
-            this.backgroundWorker1.RunWorkerAsync();
+            if (Directory.Exists(textBox1.Text))
+            {
+                lvFoundFiles.Items.Clear();
+                lvFoundFiles.SuspendLayout();
+                pictureBox1.Enabled = true;
+                pictureBox1.Visible = true;
+                this.button6.Visible = true;
+                button2.Visible = false;
+                this.label6.Text = "";
+                try
+                {
+                    var files = Directory.GetFiles(textBox1.Text,
+                        Properties.Settings.Default.Filter,
+                        SearchOption.AllDirectories);
+                    this.backgroundWorker1.RunWorkerAsync(files);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message,
+                    "Exception raised", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            else
+            {
+                MessageBox.Show($"{textBox1.Text} does not exist!",
+                    "Directory not found", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
         }
 
         private void button5_Click(object sender, EventArgs e)
@@ -131,16 +157,23 @@ namespace FilesCheckSum
                     if (csvLines.Length > 0)
                     {
                         string[] parts = csvLines[0].Split(',');
-                        if (Clean(parts[0]) == "hash" && Clean(parts[1]) == "origin")
+                        if (Clean(parts[0]) == "hash")
                         {
                             csvLines = csvLines.Skip(1).ToArray();
                         }
                         foreach (string line in csvLines)
                         {
                             parts = line.Split(',');
-                            if (parts.Length == 2)
+                            if (parts.Length == 4)
                             {
-                                AddToAllowedList((Clean(parts[0]), Clean(parts[1])));
+                                var fi = new FileInfo
+                                {
+                                    Hash = Clean(parts[0]),
+                                    Origin = Clean(parts[1]),
+                                    Size = long.Parse(Clean(parts[2])),
+                                    LastModified = DateTime.Parse(Clean(parts[3])),
+                                };
+                                AddToAllowedList(fi);
                             }
                         }
                     }
@@ -150,6 +183,11 @@ namespace FilesCheckSum
         }
 
         private void button6_Click(object sender, EventArgs e)
+        {
+            this._stopSearch = true;
+        }
+
+        private void button7_Click(object sender, EventArgs e)
         {
             this._stopSearch = true;
         }
@@ -172,24 +210,36 @@ namespace FilesCheckSum
 
         private void backgroundWorker1_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
-            if (Directory.Exists(textBox1.Text))
+            if (e.Argument is string[] files && e.Argument != null)
             {
-                foreach (var file in Directory.GetFiles(textBox1.Text, "*.*", SearchOption.AllDirectories))
+                foreach (var file in files)
                 {
                     if (_stopSearch)
                     {
                         break;
                     }
-                    var (hash, origin) = GetFileWithHash(file);
-                    var lvi = new ListViewItem([file.Replace(textBox1.Text, "..") ?? "UNKNOWN"]) { Tag = file };
-                    if (!_fileList.Any(flf => flf.hash?.ToUpper() == hash?.ToUpper()))
-                    {
-                        lvi.BackColor = Color.LightPink;
-                    }
-                    else
+                    var sysFile = new System.IO.FileInfo(file);
+                    var fi = new { Origin = file, Size = sysFile.Length, LastModified = sysFile.LastWriteTime };
+                    var lvi = new ListViewItem([file.Replace(textBox1.Text, "..") ?? "UNKNOWN"]);
+                    if (_fileList.Any(f => f.Size == fi.Size &&
+                                        f.LastModified == fi.LastModified &&
+                                        Path.GetFileName(f.Origin).Equals(sysFile.Name, StringComparison.InvariantCultureIgnoreCase)))
                     {
                         lvi.BackColor = Color.LightGreen;
                     }
+                    else
+                    {
+                        var hash = GetHash(file);
+                        if (_fileList.Any(f => f.Hash.Equals(hash, StringComparison.InvariantCultureIgnoreCase)))
+                        {
+                            lvi.BackColor = Color.LightGreen;
+                        }
+                        else
+                        {
+                            lvi.BackColor = Color.LightPink;
+                        }
+                    }
+
                     this.Invoke(new Action(() =>
                     {
                         lvFoundFiles.Items.Add(lvi);
@@ -219,6 +269,65 @@ namespace FilesCheckSum
             {
                 this.label6.Text = $"{count} illegal files found";
             }
+        }
+
+        private void backgroundWorker2_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        {
+            if (e.Argument is string[] files && files.Length > 0)
+            {
+                foreach (var file in files)
+                {
+                    if (this._stopSearch)
+                    {
+                        break;
+                    }
+                    this.Invoke(new Action(() =>
+                    {
+                        AddFileToAllowedList(file);
+                    }));
+                }
+            }
+        }
+
+        private void backgroundWorker2_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
+        {
+            this._stopSearch = false;
+            this.pictureBox2.Visible = false;
+            this.button7.Visible = false;
+            SaveAllowedList();
+        }
+
+        private void toolStripMenuItemRun_Click(object sender, EventArgs e)
+        {
+            if (this.lvAllowedFiles.SelectedItems.Count > 0)
+            {
+                ListViewItem s = this.lvAllowedFiles.SelectedItems[0];
+                var path = s.SubItems[1].Text;
+                if (File.Exists(path))
+                {
+                    OpenWithDefaultProgram(path);
+                }
+            }
+        }
+
+        private void toolStripMenuItemProps_Click(object sender, EventArgs e)
+        {
+            ListViewItem s = this.lvAllowedFiles.SelectedItems[0];
+            var path = s.SubItems[1].Text;
+            if (File.Exists(path))
+            {
+                ShowFileProperties.Show(path);
+            }
+        }
+
+        private void toolStripMenuItemDisallow_Click(object sender, EventArgs e)
+        {
+            foreach (ListViewItem s in this.lvAllowedFiles.SelectedItems)
+            {
+                var path = s.SubItems[1].Text;
+                RemoveFileFromAllowedList(path);
+            }
+            SaveAllowedList();
         }
 
         private void contextMenuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
@@ -325,24 +434,21 @@ namespace FilesCheckSum
         private void LoadAllowedListView()
         {
             lvAllowedFiles.Items.Clear();
-            foreach (var (hash, origin) in _fileList)
+            foreach (var fi in _fileList)
             {
-                if (hash != null && origin != null)
-                {
-                    ListViewItem lvi = new([hash, origin]);
-                    lvAllowedFiles.Items.Add(lvi);
-                    lvi.EnsureVisible();
-                }
+                ListViewItem lvi = new([fi.Hash, fi.Origin, fi.Size.ToString(), fi.LastModified.ToString()]);
+                lvAllowedFiles.Items.Add(lvi);
+                lvi.EnsureVisible();
             }
         }
 
         private void SaveAllowedList()
         {
-            string text = "\"hash\",\"origin\"" + Environment.NewLine;
+            string text = "\"hash\",\"origin\",\"size\",\"modified\"" + Environment.NewLine;
 
-            foreach (var (hash, origin) in _fileList)
+            foreach (var fi in _fileList)
             {
-                text += $"\"{hash}\",\"{origin}\"{Environment.NewLine}";
+                text += $"\"{fi.Hash}\",\"{fi.Origin}\",\"{fi.Size}\",\"{fi.LastModified}\"{Environment.NewLine}";
             }
             Properties.Settings.Default.AllowedFilesCsv = text;
             Properties.Settings.Default.Save();
@@ -352,22 +458,27 @@ namespace FilesCheckSum
 
         private bool AddFileToAllowedList(string path)
         {
-            return AddToAllowedList(GetFileWithHash(path));
+            var a = GetFileWithHash(path);
+            return a != null && AddToAllowedList(a);
         }
 
-        private bool AddToAllowedList((string? hash, string? origin) f)
+        private bool AddToAllowedList(FileInfo f)
         {
-            if (f.origin != null && f.hash != null)
+            if (f.Origin != null && f.Hash != null)
             {
-                var found = _fileList.Find(fli => fli.hash == f.hash);
+                var found = _fileList.Find(fli => fli.Hash == f.Hash);
                 if (found != default)
                 {
-                    found.origin = f.origin;
+                    found.Origin = f.Origin;
+                    found.Size = f.Size;
+                    found.LastModified = f.LastModified;
                     foreach (ListViewItem lvi in this.lvAllowedFiles.Items)
                     {
-                        if (lvi.Text == f.hash)
+                        if (lvi.Text == f.Hash)
                         {
-                            lvi.SubItems[0].Text = f.origin;
+                            lvi.SubItems[1].Text = f.Origin;
+                            lvi.SubItems[2].Text = f.Size.ToString();
+                            lvi.SubItems[3].Text = f.LastModified.ToString();
                             break;
                         }
                     }
@@ -376,7 +487,7 @@ namespace FilesCheckSum
                 else
                 {
                     _fileList.Add(f);
-                    ListViewItem lvi = new([f.hash, f.origin]);
+                    ListViewItem lvi = new([f.Hash, f.Origin, f.Size.ToString(), f.LastModified.ToString()]);
                     lvAllowedFiles.Items.Add(lvi);
                     lvi.EnsureVisible();
                     return true;
@@ -388,9 +499,9 @@ namespace FilesCheckSum
         private bool RemoveFileFromAllowedList(string path)
         {
             var f = GetFileWithHash(path);
-            if (f.hash != null)
+            if (f != null && f.Hash != null)
             {
-                var found = _fileList.Find(fli => fli.hash == f.hash);
+                var found = _fileList.Find(fli => fli.Hash == f.Hash);
                 if (found != default)
                 {
                     var index = _fileList.IndexOf(found);
@@ -398,7 +509,7 @@ namespace FilesCheckSum
                     ListViewItem? lviFound = null;
                     foreach (ListViewItem lvi in this.lvAllowedFiles.Items)
                     {
-                        if (lvi.Text == f.hash)
+                        if (lvi.Text == f.Hash)
                         {
                             lviFound = lvi;
                             break;
@@ -444,16 +555,20 @@ namespace FilesCheckSum
             return md5Checksum;
         }
 
-        private static (string? hash, string? origin) GetFileWithHash(string path)
+        private static FileInfo? GetFileWithHash(string path)
         {
-            string? hash = null;
-            string? origin = null;
-            if (File.Exists(path))
+            System.IO.FileInfo file = new(path);
+            if (file.Exists)
             {
-                hash = GetHash(path);
-                origin = path;
+                return new FileInfo
+                {
+                    Hash = GetHash(path),
+                    Origin = path,
+                    Size = file.Length,
+                    LastModified = file.LastWriteTime
+                };
             }
-            return (hash, origin);
+            return null;
         }
 
         private static void OpenWithDefaultProgram(string path)
@@ -462,6 +577,13 @@ namespace FilesCheckSum
             p.StartInfo.FileName = "explorer";
             p.StartInfo.Arguments = "\"" + path + "\"";
             p.Start();
-        }        
+        }
+    }
+    public class FileInfo
+    {
+        public required string Hash { get; set; }
+        public required string Origin { get; set; }
+        public long Size { get; set; }
+        public DateTime LastModified { get; set; }
     }
 }
