@@ -32,7 +32,6 @@ namespace FilesCheckSum
         {
             components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
-            textBox1 = new TextBox();
             button1 = new Button();
             button2 = new Button();
             lvAllowedFiles = new DoubleBufferedListView();
@@ -69,6 +68,10 @@ namespace FilesCheckSum
             pictureBox2 = new PictureBox();
             textBox2 = new TextBox();
             splitContainer1 = new SplitContainer();
+            flowLayoutPanel1 = new FlowLayoutPanel();
+            contextMenuStrip2 = new ContextMenuStrip(components);
+            toolStripMenuItemOpenPath = new ToolStripMenuItem();
+            toolStripMenuItemRemovePath = new ToolStripMenuItem();
             contextMenuStrip3.SuspendLayout();
             contextMenuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
@@ -77,33 +80,22 @@ namespace FilesCheckSum
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
             splitContainer1.SuspendLayout();
+            contextMenuStrip2.SuspendLayout();
             SuspendLayout();
-            // 
-            // textBox1
-            // 
-            textBox1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            textBox1.BackColor = Color.GhostWhite;
-            textBox1.Font = new Font("Segoe UI", 15F);
-            textBox1.ForeColor = Color.FromArgb(128, 128, 255);
-            textBox1.Location = new Point(21, 9);
-            textBox1.Name = "textBox1";
-            textBox1.ReadOnly = true;
-            textBox1.Size = new Size(617, 34);
-            textBox1.TabIndex = 0;
             // 
             // button1
             // 
             button1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            button1.BackgroundImage = Properties.Resources.folder_scale_200;
-            button1.BackgroundImageLayout = ImageLayout.Center;
+            button1.BackgroundImage = Properties.Resources.folder_add;
+            button1.BackgroundImageLayout = ImageLayout.Zoom;
             button1.Cursor = Cursors.Hand;
             button1.FlatAppearance.BorderSize = 0;
             button1.FlatAppearance.MouseDownBackColor = Color.Transparent;
             button1.FlatAppearance.MouseOverBackColor = Color.Transparent;
             button1.FlatStyle = FlatStyle.Flat;
-            button1.Location = new Point(743, 6);
+            button1.Location = new Point(644, 5);
             button1.Name = "button1";
-            button1.Size = new Size(45, 40);
+            button1.Size = new Size(54, 44);
             button1.TabIndex = 1;
             button1.UseVisualStyleBackColor = true;
             button1.Click += button1_Click;
@@ -415,9 +407,9 @@ namespace FilesCheckSum
             button7.FlatAppearance.MouseDownBackColor = Color.Transparent;
             button7.FlatAppearance.MouseOverBackColor = Color.Transparent;
             button7.FlatStyle = FlatStyle.Flat;
-            button7.Location = new Point(286, 82);
+            button7.Location = new Point(286, 94);
             button7.Name = "button7";
-            button7.Size = new Size(93, 113);
+            button7.Size = new Size(56, 80);
             button7.TabIndex = 15;
             toolTip1.SetToolTip(button7, "Stop Adding (does not revert files already added)");
             button7.UseVisualStyleBackColor = true;
@@ -434,9 +426,9 @@ namespace FilesCheckSum
             pictureBox2.BackColor = Color.Transparent;
             pictureBox2.Enabled = false;
             pictureBox2.Image = Properties.Resources._13_34_17_270_512;
-            pictureBox2.Location = new Point(-29, -20);
+            pictureBox2.Location = new Point(-154, -109);
             pictureBox2.Name = "pictureBox2";
-            pictureBox2.Size = new Size(423, 350);
+            pictureBox2.Size = new Size(601, 501);
             pictureBox2.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox2.TabIndex = 14;
             pictureBox2.TabStop = false;
@@ -448,7 +440,7 @@ namespace FilesCheckSum
             textBox2.BackColor = Color.GhostWhite;
             textBox2.Font = new Font("Segoe UI", 15F);
             textBox2.ForeColor = Color.FromArgb(128, 128, 255);
-            textBox2.Location = new Point(653, 9);
+            textBox2.Location = new Point(713, 10);
             textBox2.Name = "textBox2";
             textBox2.Size = new Size(75, 34);
             textBox2.TabIndex = 16;
@@ -473,19 +465,49 @@ namespace FilesCheckSum
             splitContainer1.SplitterDistance = 320;
             splitContainer1.TabIndex = 17;
             // 
+            // flowLayoutPanel1
+            // 
+            flowLayoutPanel1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            flowLayoutPanel1.BackColor = Color.WhiteSmoke;
+            flowLayoutPanel1.BorderStyle = BorderStyle.FixedSingle;
+            flowLayoutPanel1.Location = new Point(12, 5);
+            flowLayoutPanel1.Name = "flowLayoutPanel1";
+            flowLayoutPanel1.Size = new Size(626, 44);
+            flowLayoutPanel1.TabIndex = 18;
+            // 
+            // contextMenuStrip2
+            // 
+            contextMenuStrip2.Items.AddRange(new ToolStripItem[] { toolStripMenuItemOpenPath, toolStripMenuItemRemovePath });
+            contextMenuStrip2.Name = "contextMenuStrip2";
+            contextMenuStrip2.Size = new Size(138, 48);
+            // 
+            // toolStripMenuItemOpenPath
+            // 
+            toolStripMenuItemOpenPath.Name = "toolStripMenuItemOpenPath";
+            toolStripMenuItemOpenPath.Size = new Size(137, 22);
+            toolStripMenuItemOpenPath.Text = "&Open folder";
+            toolStripMenuItemOpenPath.Click += toolStripMenuItemOpenPath_Click;
+            // 
+            // toolStripMenuItemRemovePath
+            // 
+            toolStripMenuItemRemovePath.Name = "toolStripMenuItemRemovePath";
+            toolStripMenuItemRemovePath.Size = new Size(137, 22);
+            toolStripMenuItemRemovePath.Text = "&Remove";
+            toolStripMenuItemRemovePath.Click += toolStripMenuItemRemovePath_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
             ClientSize = new Size(800, 772);
+            Controls.Add(flowLayoutPanel1);
             Controls.Add(button7);
             Controls.Add(splitContainer1);
             Controls.Add(textBox2);
             Controls.Add(label6);
             Controls.Add(pictureBox1);
             Controls.Add(button1);
-            Controls.Add(textBox1);
             Controls.Add(button2);
             Controls.Add(button6);
             Controls.Add(pictureBox2);
@@ -509,13 +531,12 @@ namespace FilesCheckSum
             splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)splitContainer1).EndInit();
             splitContainer1.ResumeLayout(false);
+            contextMenuStrip2.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
 
         #endregion
-
-        private TextBox textBox1;
         private Button button1;
         private Button button2;
         private FilesCheckSum.DoubleBufferedListView lvAllowedFiles;
@@ -552,5 +573,9 @@ namespace FilesCheckSum
         private SplitContainer splitContainer1;
         private ColumnHeader columnSize;
         private ColumnHeader columnModified;
+        private FlowLayoutPanel flowLayoutPanel1;
+        private ContextMenuStrip contextMenuStrip2;
+        private ToolStripMenuItem toolStripMenuItemOpenPath;
+        private ToolStripMenuItem toolStripMenuItemRemovePath;
     }
 }

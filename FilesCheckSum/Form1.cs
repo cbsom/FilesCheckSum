@@ -44,11 +44,36 @@ namespace FilesCheckSum
                     }
                 }
             }
+
+            string[] paths = Properties.Settings.Default.Path.Split(',',
+               StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            if (paths.Length > 0)
+            {
+                foreach (string path in paths)
+                {
+                    AddSearchPath(path);
+                }
+            }
+            RefreshPathButtons(paths);
+        }
+
+        private void RefreshPathButtons(string[]? paths = null)
+        {
+            paths ??= Properties.Settings.Default.Path.Split(',',
+               StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            this.flowLayoutPanel1.Controls.Clear();
+            foreach (string path in paths)
+            {
+                Button b = new() { AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, Text = path };
+                b.Click += (s, e) => OpenWithDefaultProgram(path);
+                toolTip1.SetToolTip(b, "Open " + path);
+                b.ContextMenuStrip = contextMenuStrip2;
+                this.flowLayoutPanel1.Controls.Add(b);
+            }
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            this.textBox1.Text = Properties.Settings.Default.Path;
             this.textBox2.Text = Properties.Settings.Default.Filter;
             LoadAllowedListView();
         }
@@ -60,12 +85,13 @@ namespace FilesCheckSum
 
         private void button1_Click(object sender, EventArgs e)
         {
-            using FolderBrowserDialog openFileDialog = new FolderBrowserDialog();
+            using FolderBrowserDialog openFileDialog = new();
             {
                 var result = openFileDialog.ShowDialog();
                 if (openFileDialog.SelectedPath.Length > 0)
                 {
-                    this.textBox1.Text = openFileDialog.SelectedPath;
+                    AddSearchPath(openFileDialog.SelectedPath);
+                    RefreshPathButtons();
                 }
             }
         }
@@ -116,11 +142,19 @@ namespace FilesCheckSum
 
         private void button2_Click(object sender, EventArgs e)
         {
-            Properties.Settings.Default.Path = this.textBox1.Text;
             Properties.Settings.Default.Filter = this.textBox2.Text;
             Properties.Settings.Default.Save();
-
-            if (Directory.Exists(textBox1.Text))
+            List<string> files = [];
+            foreach (string path in Properties.Settings.Default.Path.Split(','))
+            {
+                if (Directory.Exists(path))
+                {
+                    files.AddRange(Directory.GetFiles(path,
+                        Properties.Settings.Default.Filter,
+                        SearchOption.AllDirectories));
+                }
+            }
+            if (files.Count > 0)
             {
                 lvFoundFiles.Items.Clear();
                 lvFoundFiles.SuspendLayout();
@@ -131,9 +165,6 @@ namespace FilesCheckSum
                 this.label6.Text = "";
                 try
                 {
-                    var files = Directory.GetFiles(textBox1.Text,
-                        Properties.Settings.Default.Filter,
-                        SearchOption.AllDirectories);
                     this.backgroundWorker1.RunWorkerAsync(files);
                 }
                 catch (Exception ex)
@@ -144,8 +175,8 @@ namespace FilesCheckSum
             }
             else
             {
-                MessageBox.Show($"{textBox1.Text} does not exist!",
-                    "Directory not found", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show("No files found!",
+                    "Files not found", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
         }
 
@@ -206,13 +237,12 @@ namespace FilesCheckSum
         {
             if (this.lvFoundFiles.SelectedItems.Count > 0)
             {
-                var s = this.lvFoundFiles.SelectedItems[0];
-                if (s != null)
+                var lvi = this.lvFoundFiles.SelectedItems[0];
+                if (lvi != null)
                 {
-                    var path = $"{this.textBox1.Text}{s.Text.Trim('.')}";
-                    if (File.Exists(path))
+                    if (lvi.Tag is FileInfo fi && File.Exists(fi.Origin))
                     {
-                        OpenWithDefaultProgram(path);
+                        OpenWithDefaultProgram(fi.Origin);
                     }
                 }
             }
@@ -220,7 +250,7 @@ namespace FilesCheckSum
 
         private void backgroundWorker1_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
-            if (e.Argument is string[] files && e.Argument != null)
+            if (e.Argument is List<string> files && e.Argument != null)
             {
                 foreach (var file in files)
                 {
@@ -230,7 +260,7 @@ namespace FilesCheckSum
                     }
                     var sysFile = new System.IO.FileInfo(file);
                     var fi = new FileInfo { Hash = string.Empty, Origin = file, Size = sysFile.Length, LastModified = sysFile.LastWriteTime };
-                    var lvi = new ListViewItem([file.Replace(textBox1.Text, "..") ?? "UNKNOWN"]) { Tag = fi };
+                    var lvi = new ListViewItem([file]) { Tag = fi };
                     if (_fileList.Any(f => f.HasSameInfo(fi)))
                     {
                         lvi.BackColor = Color.LightGreen;
@@ -314,6 +344,25 @@ namespace FilesCheckSum
             this.button7.Visible = false;
             lvAllowedFiles.ResumeLayout();
             SaveAllowedList();
+        }
+
+        private void toolStripMenuItemRemovePath_Click(object sender, EventArgs e)
+        {
+            var c = GetClickedControl((ToolStripItem)sender);
+            if (c != null)
+            {
+                RemoveSearchPath(c.Text);
+                RefreshPathButtons();
+            }
+        }
+
+        private void toolStripMenuItemOpenPath_Click(object sender, EventArgs e)
+        {
+            var c = GetClickedControl((ToolStripItem)sender);
+            if (c != null)
+            {
+                OpenWithDefaultProgram(c.Text);
+            }
         }
 
         private void toolStripMenuItemRun_Click(object sender, EventArgs e)
@@ -542,6 +591,45 @@ namespace FilesCheckSum
                 }
             }
             return false;
+        }
+
+        private void AddSearchPath(string path)
+        {
+            string[] paths = Properties.Settings.Default.Path.Split(",",
+                StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            if (!paths.Contains(path, StringComparer.InvariantCultureIgnoreCase))
+            {
+                if (paths.Length > 0)
+                {
+                    Properties.Settings.Default.Path += ",";
+                }
+                Properties.Settings.Default.Path += path;
+                Properties.Settings.Default.Save();
+            }
+        }
+
+        private static void RemoveSearchPath(string path)
+        {
+            string[] paths = Properties.Settings.Default.Path.Split(",",
+                StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            if (paths.Contains(path, StringComparer.InvariantCultureIgnoreCase))
+            {
+                var s = paths.Where(str => !path.Equals(str, StringComparison.InvariantCultureIgnoreCase));
+                Properties.Settings.Default.Path = String.Join(',', s);
+                Properties.Settings.Default.Save();
+            }
+        }
+
+        private static Control? GetClickedControl(ToolStripItem sender)
+        {
+            if (sender is ToolStripItem menuItem)
+            {
+                if (menuItem.Owner is ContextMenuStrip owner)
+                {
+                    return owner.SourceControl;
+                }
+            }
+            return null;
         }
 
         private static string Clean(string s)
