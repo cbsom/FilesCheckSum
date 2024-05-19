@@ -195,31 +195,31 @@ namespace FilesCheckSum
             // 
             contextMenuStrip1.Items.AddRange(new ToolStripItem[] { toolStripMenuItemPlay, toolStripMenuItemAdd, toolStripMenuItemRemove, toolStripMenuItemProperties });
             contextMenuStrip1.Name = "contextMenuStrip1";
-            contextMenuStrip1.Size = new Size(181, 114);
+            contextMenuStrip1.Size = new Size(128, 92);
             contextMenuStrip1.ItemClicked += contextMenuStrip1_ItemClicked;
             // 
             // toolStripMenuItemPlay
             // 
             toolStripMenuItemPlay.Name = "toolStripMenuItemPlay";
-            toolStripMenuItemPlay.Size = new Size(180, 22);
+            toolStripMenuItemPlay.Size = new Size(127, 22);
             toolStripMenuItemPlay.Text = "&Run";
             // 
             // toolStripMenuItemAdd
             // 
             toolStripMenuItemAdd.Name = "toolStripMenuItemAdd";
-            toolStripMenuItemAdd.Size = new Size(180, 22);
+            toolStripMenuItemAdd.Size = new Size(127, 22);
             toolStripMenuItemAdd.Text = "&Add";
             // 
             // toolStripMenuItemRemove
             // 
             toolStripMenuItemRemove.Name = "toolStripMenuItemRemove";
-            toolStripMenuItemRemove.Size = new Size(180, 22);
+            toolStripMenuItemRemove.Size = new Size(127, 22);
             toolStripMenuItemRemove.Text = "Remove";
             // 
             // toolStripMenuItemProperties
             // 
             toolStripMenuItemProperties.Name = "toolStripMenuItemProperties";
-            toolStripMenuItemProperties.Size = new Size(180, 22);
+            toolStripMenuItemProperties.Size = new Size(127, 22);
             toolStripMenuItemProperties.Text = "P&roperties";
             // 
             // label2
@@ -408,7 +408,6 @@ namespace FilesCheckSum
             // 
             // button7
             // 
-            button7.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             button7.BackgroundImage = Properties.Resources.stop_down;
             button7.BackgroundImageLayout = ImageLayout.Zoom;
             button7.Cursor = Cursors.Hand;
@@ -416,7 +415,7 @@ namespace FilesCheckSum
             button7.FlatAppearance.MouseDownBackColor = Color.Transparent;
             button7.FlatAppearance.MouseOverBackColor = Color.Transparent;
             button7.FlatStyle = FlatStyle.Flat;
-            button7.Location = new Point(163, 77);
+            button7.Location = new Point(286, 82);
             button7.Name = "button7";
             button7.Size = new Size(93, 113);
             button7.TabIndex = 15;
@@ -435,9 +434,9 @@ namespace FilesCheckSum
             pictureBox2.BackColor = Color.Transparent;
             pictureBox2.Enabled = false;
             pictureBox2.Image = Properties.Resources._13_34_17_270_512;
-            pictureBox2.Location = new Point(18, 52);
+            pictureBox2.Location = new Point(-29, -20);
             pictureBox2.Name = "pictureBox2";
-            pictureBox2.Size = new Size(137, 147);
+            pictureBox2.Size = new Size(423, 350);
             pictureBox2.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox2.TabIndex = 14;
             pictureBox2.TabStop = false;
@@ -480,22 +479,22 @@ namespace FilesCheckSum
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
             ClientSize = new Size(800, 772);
+            Controls.Add(button7);
             Controls.Add(splitContainer1);
             Controls.Add(textBox2);
-            Controls.Add(button7);
-            Controls.Add(pictureBox2);
-            Controls.Add(button5);
-            Controls.Add(label7);
             Controls.Add(label6);
             Controls.Add(pictureBox1);
-            Controls.Add(button4);
-            Controls.Add(button3);
-            Controls.Add(label5);
-            Controls.Add(label4);
             Controls.Add(button1);
             Controls.Add(textBox1);
             Controls.Add(button2);
             Controls.Add(button6);
+            Controls.Add(pictureBox2);
+            Controls.Add(button5);
+            Controls.Add(label7);
+            Controls.Add(button4);
+            Controls.Add(button3);
+            Controls.Add(label5);
+            Controls.Add(label4);
             ForeColor = Color.Navy;
             Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "Form1";
