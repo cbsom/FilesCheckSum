@@ -233,6 +233,14 @@ namespace FilesCheckSum
             this._stopSearch = true;
         }
 
+        private void button8_Click(object sender, EventArgs e)
+        {
+            this._stopSearch = true;
+            _fileList.Clear();
+            Properties.Settings.Default.Save();
+            this.lvAllowedFiles.Items.Clear();
+        }
+
         private void lvFoundFiles_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             if (this.lvFoundFiles.SelectedItems.Count > 0)

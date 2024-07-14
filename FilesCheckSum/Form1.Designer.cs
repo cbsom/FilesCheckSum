@@ -72,6 +72,8 @@ namespace FilesCheckSum
             contextMenuStrip2 = new ContextMenuStrip(components);
             toolStripMenuItemOpenPath = new ToolStripMenuItem();
             toolStripMenuItemRemovePath = new ToolStripMenuItem();
+            button8 = new Button();
+            label1 = new Label();
             contextMenuStrip3.SuspendLayout();
             contextMenuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
@@ -495,12 +497,41 @@ namespace FilesCheckSum
             toolStripMenuItemRemovePath.Text = "&Remove";
             toolStripMenuItemRemovePath.Click += toolStripMenuItemRemovePath_Click;
             // 
+            // button8
+            // 
+            button8.BackgroundImage = Properties.Resources.edit_clear;
+            button8.BackgroundImageLayout = ImageLayout.Zoom;
+            button8.Cursor = Cursors.Hand;
+            button8.FlatAppearance.BorderSize = 0;
+            button8.FlatAppearance.CheckedBackColor = Color.Transparent;
+            button8.FlatAppearance.MouseDownBackColor = Color.Transparent;
+            button8.FlatAppearance.MouseOverBackColor = Color.Transparent;
+            button8.FlatStyle = FlatStyle.Flat;
+            button8.Location = new Point(125, 167);
+            button8.Name = "button8";
+            button8.Size = new Size(30, 28);
+            button8.TabIndex = 20;
+            button8.UseVisualStyleBackColor = true;
+            button8.Click += button8_Click;
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Font = new Font("Segoe UI", 7F);
+            label1.ForeColor = Color.Navy;
+            label1.Location = new Point(21, 176);
+            label1.Name = "label1";
+            label1.Size = new Size(79, 12);
+            label1.TabIndex = 19;
+            label1.Text = "Clear list ---------";
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
             ClientSize = new Size(800, 772);
+            Controls.Add(pictureBox2);
             Controls.Add(flowLayoutPanel1);
             Controls.Add(button7);
             Controls.Add(splitContainer1);
@@ -510,13 +541,14 @@ namespace FilesCheckSum
             Controls.Add(button1);
             Controls.Add(button2);
             Controls.Add(button6);
-            Controls.Add(pictureBox2);
             Controls.Add(button5);
             Controls.Add(label7);
             Controls.Add(button4);
             Controls.Add(button3);
             Controls.Add(label5);
             Controls.Add(label4);
+            Controls.Add(button8);
+            Controls.Add(label1);
             ForeColor = Color.Navy;
             Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "Form1";
@@ -577,5 +609,7 @@ namespace FilesCheckSum
         private ContextMenuStrip contextMenuStrip2;
         private ToolStripMenuItem toolStripMenuItemOpenPath;
         private ToolStripMenuItem toolStripMenuItemRemovePath;
+        private Button button8;
+        private Label label1;
     }
 }
